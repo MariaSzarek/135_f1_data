@@ -6,3 +6,5 @@ alter table constructorstandings add foreign key (raceId) references races(raceI
 desc constructorstandings;
 alter table constructorstandings add foreign key (constructorId) references constructors(constructorId);
 desc constructorstandings;
+
+use f1db;

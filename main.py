@@ -1,35 +1,41 @@
-import requests
+import mysql.connector
 import pandas as pd
 
-# Funkcja pobierająca wyniki Alonso
-def get_alonso_results():
-    url = "http://ergast.com/api/f1/drivers/alonso/results.json?limit=1000"
-    response = requests.get(url)
-    data = response.json()
+password = input("Podaj haslo do db: ")
+# Połączenie z MySQL
+conn = mysql.connector.connect(
+    host="localhost",
+    port=3306,
+    user="root",
+    password=password,
+    database="f1db"
+)
 
-    results = []
-    for race in data["MRData"]["RaceTable"]["Races"]:
-        for result in race["Results"]:
-            results.append({
-                "season": race["season"],
-                "round": race["round"],
-                "race_name": race["raceName"],
-                "circuit": race["Circuit"]["circuitName"],
-                "date": race["date"],
-                "constructor": result["Constructor"]["name"],
-                "grid": int(result["grid"]),
-                "position": int(result["position"]) if result["position"].isdigit() else None,
-                "status": result["status"]
-            })
+# Pobieramy dane z bazy
+query = """
+SELECT r.raceId, d.surname, res.position
+FROM results res
+JOIN drivers d ON res.driverId = d.driverId
+JOIN races r ON res.raceId = r.raceId
+WHERE d.surname IN ('Alonso', 'Stroll') AND r.year > 2023
+"""
+df = pd.read_sql(query, conn)
 
-    return pd.DataFrame(results)
+# Zamiana NULL (None) na 21
+df["position"].fillna(21, inplace=True)
 
-# Pobieramy dane
-df_alonso = get_alonso_results()
+# Przekształcenie tabeli – każdy wyścig ma jedną linię
+df_pivot = df.pivot(index="raceId", columns="surname", values="position").reset_index()
 
-# Podgląd danych
-print(df_alonso.head())
-print(df_alonso.tail())
+# Dodanie kolumny "alonso_better_than_ocon"
+df_pivot["alonso_better_than_stroll"] = (df_pivot["Alonso"] < df_pivot["Stroll"]).astype(int)
 
-# Zapisujemy do CSV
-df_alonso.to_csv("alonso_results.csv", index=False)
+# Ile razy Alonso był lepszy?
+alonso_wins = df_pivot["alonso_better_than_stroll"].sum()
+
+# Wyświetlenie wyników
+print(df_pivot)
+print(f"Alonso był lepszy od Ocona w {alonso_wins} wyścigach.")
+
+# Zamknięcie połączenia
+conn.close()
