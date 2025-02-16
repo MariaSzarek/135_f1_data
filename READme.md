@@ -14,6 +14,10 @@ Stats for F1
 * requests
 * rest api
 * pandas
+* sqlalchemy
+
+## Databese
+http://ergast.com/docs/f1db_user_guide.txt
 
 
 ## Running
