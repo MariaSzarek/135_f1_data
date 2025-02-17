@@ -11,10 +11,9 @@ Stats for F1
 
 ## Technologies
 * python 3.11
-* requests
-* rest api
 * pandas
 * sqlalchemy
+* pytest
 
 ## Databese
 http://ergast.com/docs/f1db_user_guide.txt

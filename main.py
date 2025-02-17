@@ -3,6 +3,7 @@ import pandas as pd
 
 engine = create_engine('mysql+mysqlconnector://root:admin@localhost:3306/f1db')
 year = 2024
+
 query = f"""
 SELECT r.raceId, d.surname, res.position
 FROM results res
