@@ -21,7 +21,6 @@ def test_na_to_21(mock_read_sql):
     df = pd.read_sql('SELECT * FROM table', None)
     na_to_21(df)
 
-
     assert df['position'].iloc[2] == 21
     assert df['position'].iloc[5] == 21
 
